@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.yuefei.controller.Controller">
+   <top>
+      <VBox>
+         <children>
+            <HBox spacing="20.0" BorderPane.alignment="CENTER">
+               <children>
+                  <TextField fx:id="txf" promptText="Type in id of GO term" />
+                  <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#scrollToFoundItem" text="Search" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button fx:id="downLoadBtn" layoutX="177.0" layoutY="10.0" mnemonicParsing="false" onAction="#initializeTreeView" text="Load File">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <BorderPane.margin>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+               </BorderPane.margin>
+               <VBox.margin>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <bottom>
+      <VBox prefHeight="5.0" prefWidth="466.0">
+         <children>
+            <Label fx:id="statusBar" prefHeight="17.0" prefWidth="598.0">
+               <padding>
+                  <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+               </VBox.margin>
+            </Label>
+         </children>
+      </VBox>
+   </bottom>
+   <center>
+      <TreeView fx:id="treeView" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </BorderPane.margin></TreeView>
+   </center>
+</BorderPane>
