@@ -18,52 +18,79 @@ import org.yuefei.util.Utility;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Component
 public class Controller {
-    @Value(("${file.path}")) private String path;
-    @Value(("${tag.term}")) private String TERM_TAG;
+    @Value(("${file.path}"))
+    private String pathOfDataXML;
+    @Value(("${tag.term}"))
+    private String termTagName;
 
-    @FXML private Button downLoadBtn;
-    @FXML private Button searchBtn;
-    @FXML private TextField txf;
-    @FXML private Label statusBar;
-    @FXML private TreeView<String> treeView;
+    @FXML
+    private Button downLoadBtn;
+    @FXML
+    private Button searchBtn;
+    @FXML
+    private TextField txf;
+    @FXML
+    private Label statusBar;
+    @FXML
+    private TreeView<String> treeView;
 
-    private NodeList terms;
     private TreeItem<String> treeRoot = new TreeItem<>("obo");
     private boolean loaded = false;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final ObservableList<OboTreeItem> buffer = FXCollections.observableArrayList();
+    private final TreeMap<String, OboTreeItem> registry = new TreeMap<>();
 
     @FXML
-    public void initializeTreeView(ActionEvent e) {
-        if (loaded) {
-            statusBar.setText("XML file already loaded.");
-        }
-        Task<Void> downloadTask = new LoadTask();
+    public void initializeTreeView() {
+        Task<Stream<Element>> downloadTask = new LoadTask(pathOfDataXML, termTagName);
+        downloadTask.setOnSucceeded(e -> {
+            statusBar.setText("XML file is loaded.");
+            Stream<Element> termStream = downloadTask.getValue();
+            termStream
+                    .forEach(term -> {
+                        Element id = (Element) term.getElementsByTagName("id").item(0);
+                        OboTreeItem item = new OboTreeItem(term.getTagName() + " : " + id.getTextContent());
+                        item.setBackendNode(term);
+                        registry.put(id.getTextContent(), item);
+                        buffer.add(item);
+                    });
+            treeView.setRoot(treeRoot);
+            treeRoot.setExpanded(true);
+            treeView.setShowRoot(false);
+            treeView.refresh();
+        });
+        downloadTask.setOnFailed(e -> statusBar.setText("Loading XML file failed."));
+        downloadTask.setOnRunning(e -> {
+            statusBar.setText("Loading XML file ... ...");
+            downLoadBtn.setDisable(true);
+        });
+
         executorService.execute(downloadTask);
-        statusBar.setText("Loading XML File ... ...");
-        treeView.setRoot(treeRoot);
-        treeRoot.setExpanded(true);
-        treeView.setShowRoot(false);
-        treeView.refresh();
+
+        treeRoot.addEventHandler(TreeItem.branchExpandedEvent(), xe -> {
+
+        });
 
         buffer.addListener(new ListChangeListener<OboTreeItem>() {
-            private int count = 0;
+            private List<OboTreeItem> batch = new ArrayList<>(10000);
             @Override
             public void onChanged(Change<? extends OboTreeItem> c) {
-                while (c.next()) {
-                    List<OboTreeItem> added = (List<OboTreeItem>) c.getAddedSubList();
-                    treeRoot.getChildren().addAll(added);
-                    count += added.size();
+                while (c.next() && c.wasAdded()) {
+                    treeRoot.getChildren().addAll(c.getAddedSubList());
                 }
             }
         });
-//        treeView.setOnMouseClicked(me -> System.out.println("Clicked"));
     }
 
     @FXML
@@ -71,36 +98,27 @@ public class Controller {
 
     }
 
-    private class LoadTask extends Task<Void> {
+    private class LoadTask extends Task<Stream<Element>> {
+        private String path;
+        private String tag;
+        LoadTask(String path, String tag) {
+            this.path = path;
+            this.tag = tag;
+        }
+
         @Override
-        protected Void call() throws Exception {
+        protected Stream<Element> call() throws Exception {
             // step1: parse XML in DOM
+            System.out.println("start load xml : " + new Date());
             File input = new File(path);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(input);
             // step2: remove everything other than term-tags
             Element root = document.getDocumentElement();
-            terms = root.getElementsByTagName(TERM_TAG);
-            for (int i = 0; i < terms.getLength(); i++) {
-                Element currentTerm = (Element) terms.item(i);
-                Utility.stripNonElement(currentTerm);
-                Utility.copyIdToTermAttr(currentTerm);
-                OboTreeItem item = new OboTreeItem(currentTerm);
-                buffer.add(item);
-            }
-            return null;
-        }
-
-        @Override
-        protected void succeeded() {
-            statusBar.setText("XML file Loaded.");
-            loaded = true;
-        }
-
-        @Override
-        protected void failed() {
-            statusBar.setText("Loading XML file failed!");
+            Utility.stripNonElement(root);
+            NodeList termNodes = root.getElementsByTagName(tag);
+            return IntStream.range(0, termNodes.getLength()).mapToObj(idx -> ((Element) termNodes.item(idx)));
         }
     }
 }

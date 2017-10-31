@@ -20,6 +20,13 @@ public class OboTreeItem extends TreeItem<String> {
         this.setValue(tag + attr + " : " + content);
     }
 
+    public OboTreeItem(String value) {
+        this.setValue(value);
+        leafPropertyCalculated = true;
+        leafNode = false;
+        childrenLoaded = false;
+    }
+
     @Override
     public boolean isLeaf() {
         if (!leafPropertyCalculated) {
@@ -48,4 +55,11 @@ public class OboTreeItem extends TreeItem<String> {
         }
     }
 
+    public Element getBackendNode() {
+        return backendNode;
+    }
+
+    public void setBackendNode(Element backendNode) {
+        this.backendNode = backendNode;
+    }
 }
