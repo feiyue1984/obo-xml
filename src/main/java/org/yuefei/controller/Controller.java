@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +17,7 @@ import org.yuefei.util.Utility;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
@@ -37,10 +33,6 @@ public class Controller {
     @FXML
     private Button downLoadBtn;
     @FXML
-    private Button searchBtn;
-    @FXML
-    private TextField txf;
-    @FXML
     private Label statusBar;
     @FXML
     private TreeView<String> treeView;
@@ -49,25 +41,22 @@ public class Controller {
     private boolean loaded = false;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final ObservableList<OboTreeItem> buffer = FXCollections.observableArrayList();
-    private final TreeMap<String, OboTreeItem> registry = new TreeMap<>();
 
     @FXML
-    public void initializeTreeView() {
+    private void initializeTreeView() {
         Task<Stream<Element>> downloadTask = new LoadTask(pathOfDataXML, termTagName);
         downloadTask.setOnSucceeded(e -> {
             statusBar.setText("XML file is loaded.");
+            downLoadBtn.setText("Loaded");
             Stream<Element> termStream = downloadTask.getValue();
             termStream
                     .forEach(term -> {
                         Element id = (Element) term.getElementsByTagName("id").item(0);
                         OboTreeItem item = new OboTreeItem(term.getTagName() + " : " + id.getTextContent());
                         item.setBackendNode(term);
-                        registry.put(id.getTextContent(), item);
                         buffer.add(item);
                     });
-            treeView.setRoot(treeRoot);
-            treeRoot.setExpanded(true);
-            treeView.setShowRoot(false);
+            customizeTreeBehavior();
             treeView.refresh();
         });
         downloadTask.setOnFailed(e -> statusBar.setText("Loading XML file failed."));
@@ -77,10 +66,6 @@ public class Controller {
         });
 
         executorService.execute(downloadTask);
-
-        treeRoot.addEventHandler(TreeItem.branchExpandedEvent(), xe -> {
-
-        });
 
         buffer.addListener(new ListChangeListener<OboTreeItem>() {
             private List<OboTreeItem> batch = new ArrayList<>(10000);
@@ -93,9 +78,51 @@ public class Controller {
         });
     }
 
-    @FXML
-    public void scrollToFoundItem(ActionEvent event) {
+    private void scrollToItem(String id) {
+        Optional<TreeItem<String>> found = treeRoot.getChildren().stream().filter(item -> item.getValue().endsWith
+                (id)).findFirst();
+        if (found.isPresent()) {
+            TreeItem<String> item = found.get();
+            int row = item.getParent().getChildren().indexOf(item);
+            treeView.scrollTo(row);
+            MultipleSelectionModel<TreeItem<String>> sm = treeView.getSelectionModel();
+            sm.select(item);
+        }
+    }
 
+    private void customizeTreeBehavior() {
+        treeView.setRoot(treeRoot);
+        treeRoot.setExpanded(true);
+        treeView.setShowRoot(false);
+        treeView.setCellFactory(tv -> {
+            TreeCell<String> tc =  new TreeCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        this.setText(null);
+                        this.setGraphic(null);
+                    } else {
+                        String text = this.getTreeItem().getValue();
+                        this.setText(text);
+                        if (text.startsWith("is_a") || text.startsWith("term"))
+                            this.setStyle("-fx-text-fill: blue");
+                        else
+                            this.setStyle("-fx-text-fill: black");
+                    }
+                }
+            };
+            tc.setOnMouseClicked(event -> {
+                String text = tc.getText();
+                if (text.startsWith("is_a")) {
+                    tc.getTreeItem().getParent().getParent().getChildren().forEach(node -> node.setExpanded(false));
+                    int idx = text.lastIndexOf(":");
+                    String id = text.substring(idx + 1);
+                    scrollToItem(id);
+                }
+            });
+            return tc;
+        });
     }
 
     private class LoadTask extends Task<Stream<Element>> {
@@ -109,16 +136,16 @@ public class Controller {
         @Override
         protected Stream<Element> call() throws Exception {
             // step1: parse XML in DOM
-            System.out.println("start load xml : " + new Date());
             File input = new File(path);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(input);
             // step2: remove everything other than term-tags
             Element root = document.getDocumentElement();
-            Utility.stripNonElement(root);
+            Utility.stripWhiteSpacesElement(root);
             NodeList termNodes = root.getElementsByTagName(tag);
             return IntStream.range(0, termNodes.getLength()).mapToObj(idx -> ((Element) termNodes.item(idx)));
         }
     }
+
 }

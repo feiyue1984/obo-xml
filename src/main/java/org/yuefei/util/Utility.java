@@ -6,7 +6,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class Utility {
-    public static void stripNonElement(Node node) {
+    public static void stripWhiteSpacesElement(Node node) {
         NodeList list = node.getChildNodes();
         for (int i = 0; i < list.getLength();) {
             Node current = list.item(i);
@@ -15,7 +15,7 @@ public class Utility {
                 continue;
             }
             if (current.hasChildNodes()) {
-                stripNonElement(current);
+                stripWhiteSpacesElement(current);
             }
             i++;
         }
@@ -34,7 +34,7 @@ public class Utility {
         return node.hasChildNodes() && node.getFirstChild().getNodeType() == Node.ELEMENT_NODE;
     }
 
-    public static boolean copyIdToTermAttr(Node node) {
+/*    public static boolean copyIdToTermAttr(Node node) {
         Element term = (Element) node;
         if (term == null)
             return false;
@@ -45,5 +45,5 @@ public class Utility {
         term.setAttribute("id", idVal);
         term.removeChild(id);
         return true;
-    }
+    }*/
 }

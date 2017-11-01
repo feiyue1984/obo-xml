@@ -14,10 +14,10 @@
          <children>
             <HBox spacing="20.0" BorderPane.alignment="CENTER">
                <children>
-                  <TextField fx:id="txf" promptText="Type in id of GO term" />
-                  <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#scrollToFoundItem" text="Search" />
+                  <!--<TextField fx:id="txf" promptText="Type in id of GO term" visible="false" />-->
+                  <!--<Button fx:id="searchBtn" disable="true" mnemonicParsing="false" text="Search" visible="false" />-->
                   <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="downLoadBtn" layoutX="177.0" layoutY="10.0" mnemonicParsing="false" onAction="#initializeTreeView" text="Load File">
+                  <Button fx:id="downLoadBtn" defaultButton="true" layoutX="177.0" layoutY="10.0" mnemonicParsing="false" onAction="#initializeTreeView" text="Load File">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>

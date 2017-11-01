@@ -12,7 +12,7 @@ public class OboTreeItem extends TreeItem<String> {
     private boolean leafNode = false;
     private Element backendNode;
 
-    public OboTreeItem(Element node) {
+    private OboTreeItem(Element node) {
         this.backendNode = node;
         String tag = node.getTagName();
         String attr = Utility.getAttributesAsString(node);
@@ -49,7 +49,10 @@ public class OboTreeItem extends TreeItem<String> {
         if (Utility.hasElementAsChild(backend)) {
             NodeList children = backend.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
-                OboTreeItem toAdd = new OboTreeItem((Element) children.item(i));
+                Element childAsElement = (Element) children.item(i);
+                if (childAsElement.getTagName().equals("id"))
+                    continue;
+                OboTreeItem toAdd = new OboTreeItem(childAsElement);
                 oboTreeItem.getChildren().add(toAdd);
             }
         }
