@@ -1,0 +1,9 @@
+
+1.  The gzip file go_daily-termdb.obo-xml is unzipped and renamed to data.xml. It is placed in the root folder of the project.
+    The location and the name of the xml file can be modified in the /src/main/resources/application.properties. The key is 'file.path'.
+
+2.  The prerequisites of building and running this project are java8 and maven. Run 'mvn clean package' under the root directory of the project. A fat jar will be generated under folder at target/obo-xml-0.0.1-SNAPSHOT.jar.
+
+3.  The application can be started by command 'java -jar target/obo-xml-0.0.1-SNAPSHOT.jar' under root directory.
+
+4.  To shutdown the application, just run 'Ctrl-C' to exit the process in command line.
