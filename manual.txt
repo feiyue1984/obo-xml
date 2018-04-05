@@ -21,4 +21,4 @@ What would you do in the following cases:
   -- What find you most challenging in cooperating with colleagues.
   -- You think you are unfairly treated by manager/colleague
 
-So far no questions regarding design patters. Weird!
+So far no questions regarding design patterns. Weird!
