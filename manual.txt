@@ -1,10 +1,22 @@
-This prototype is quite simple with regard to the functionality and UI design. There is a button to initiate the program, a treeview to display the data and at the bottom there is a status bar to show progress.
+I should have spent more time investigating the internal working of JVM & Data structures and Algorithms.
 
-To start the program, just click on the only button of the window. Then, the XML data file will be parsed and loaded into memory. Depending on the hardware, this phase takes up to several seconds. 
+If I had not been to the island, I would not have known that Java is NOT a purely compiled language and it lies somewhere between compile languages (eg. Fortran) and the interpreted languages (as Python). 
 
-A treeview will be constructed based on the <term>xxx</term> tags in the file. Each TERM tag becomes the immediate child of the root of the tree and the id property of the term will be displayed at this level. Initially all nodes are collapsed and the only visible information of each node is the id. The details of each node are displayed in subnodes, which are loaded just in time when the node is expanded by user.
+It's interesting to learn the mark-and-sweep algorithm adopted by the Garbage Collector. How GC searchs the unreferenced objects starting from the GC roots (what are the potential roots?) in the graph in a depth first fashion?
 
-If a node bears a subnode 'is_a : GO:${id}', by clicking this subnode, the treeview will scroll the node referenced by this id and highlight it.
+When I do code review, I pay attention to the following:
+  -- array can form potential memory leaks
+  -- if all public methods are tested in the test class
+  -- if instance variables are protected by private access modifier
+  
+When I code with a colleague, I bear the following in mind:
+  -- in case the equals() method is overriden, if the hashcode() method is overriden as well
+  -- if you find the existing method names, variable names confusing and misleading, change them at will
+  -- the only thing that you cannot modify is the interface
+  -- in order to optimize certain algorithm, you need to store 2 dimensional points into a special data structure. In Binary Search Tree, left leaf < root <  right leaf. But this can only deal with 1 dimensional problem. It would be great if you can invent a variant of BST in which each root bears 4 leaves(each represents a point in a quarant).
 
-To shutdown the program, just click 'X' button of the window.
-
+What would you do in the following cases:
+  -- The manager assigns an techncially infeasiable task to you.
+  -- You are at the point to make a decision but you don't have time to weigh
+  -- What find you most challenging in cooperating with colleagues.
+  -- You think you are unfairly treated by manager/colleague
