@@ -1,6 +1,6 @@
 I should have spent more time investigating the internal working of JVM & Data structures and Algorithms.
 
-If I had not been to the island, I would not have known that Java is NOT a purely compiled language and it lies somewhere between compile languages (eg. Fortran) and the interpreted languages (as Python). 
+If I had not been to the island, I would not have known that Java is NOT a purely compiled language and it lies somewhere between compiled languages (eg. Fortran) and interpreted languages (as Python). 
 
 It's interesting to learn the mark-and-sweep algorithm adopted by the Garbage Collector. How GC searchs the unreferenced objects starting from the GC roots (what are the potential roots?) in the graph in a depth first fashion?
 
