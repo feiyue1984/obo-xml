@@ -20,3 +20,5 @@ What would you do in the following cases:
   -- You are at the point to make a decision but you don't have time to weigh
   -- What find you most challenging in cooperating with colleagues.
   -- You think you are unfairly treated by manager/colleague
+
+So far no questions regarding design patters. Weird!
